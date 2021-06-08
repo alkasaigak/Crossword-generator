@@ -16,6 +16,7 @@ Including another URLconf
 from django.conf.urls import url
 from django.contrib import admin
 from django.urls import include, path
+from django.conf.urls.static import static
 from django.views.generic.base import TemplateView
 
 urlpatterns = [

@@ -6,52 +6,12 @@ from .models import (Book, Author)
 
 class BookForm(forms.Form):
     name = forms.CharField(
-        label='Book Name',
+        label='Слово',
         widget=forms.TextInput(attrs={
             'class': 'form-control',
-            'placeholder': 'Enter Book Name here'
+            'placeholder': 'Введите слово сюда'
         })
     )
 
 
-class BookModelForm(forms.ModelForm):
-
-    class Meta:
-        model = Book
-        fields = ('name', )
-        labels = {
-            'name': 'Book Name'
-        }
-        widgets = {
-            'name': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Enter Book Name here'
-                }
-            )
-        }
-
-
 BookFormset = formset_factory(BookForm)
-BookModelFormset = modelformset_factory(
-    Book,
-    fields=('name', ),
-    extra=1,
-    widgets={
-        'name': forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Enter Book Name here'
-            }
-        )
-    }
-)
-
-AuthorFormset = modelformset_factory(
-    Author,
-    fields=('name', ),
-    extra=1,
-    widgets={'name': forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Enter Author Name here'
-        })
-    }
-)
