@@ -7,9 +7,14 @@
       <meta charset="UTF-8">
       <title>show</title>
       <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet">
+      <link rel="stylesheet" media="print" href="print.css">
     </head>
 <body>
-    <img src="{% static fname %}" width="50%">
+    <style type="text/css" media="print">
+    button {display: none;}
+    </style>
+    <button type="button" class="noprint" onclick="window.print();">Печать</button>
+    <img src="{% static fname %}" width="70%">
     {% for w, cl in words %}
         <div style="background:{{ cl }}">{{ w }}</div>
     {% endfor %}
