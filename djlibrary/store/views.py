@@ -2,9 +2,26 @@ from django.shortcuts import render, redirect
 from django.views import generic
 from PIL import Image, ImageDraw, ImageFont
 from random import randint
+import requests
 
 cw_amount = 2
 
+def get_meaning(word):
+    try:
+        content = requests.get(f'https://ru.wiktionary.org/wiki/{word}')
+        unparsed = content.text.split('<span class="mw-headline" id="Значение">Значение</span>')[1].split('</li>')[0]
+        print(unparsed)
+        ans = ""
+        cnt = 0
+        for ch in unparsed:
+            cnt += ch == '"'
+            if not cnt % 2 and (ch in ' ,.?!' or (ord('а') <= ord(ch) and ord(ch) <= ord('я'))):
+                ans += ch
+        return f"{' '.join(ans.split()).replace('править', '')} ({word})"
+    except:
+        return f"({word})"
+    
+    
 class Crossword(object):
     def __init__(self):
         self.W = 15
@@ -15,7 +32,7 @@ class Crossword(object):
         self.draw = ImageDraw.Draw(self.img)
         self.words = []
         self.letters = [[] for i in range(33)]
-        self.font = ImageFont.load_default().font
+        self.font = ImageFont.load_default()
 
     def add_rect(self, x, y):
         self.draw.rectangle((self.W*self.C + x*self.C, self.H*self.C + y*self.C, self.W*self.C + (x + 1)*self.C, self.H*self.C + (y + 1)*self.C), outline=(0, 0, 0))
@@ -30,7 +47,7 @@ class Crossword(object):
                 self.add_rect(x1, 0)
                 self.letters[ord(word[x1]) - ord('а')].append((x1, 0, 0))
             self.draw.text((self.W, self.H),str(len(self.words)),(0,0,0), font=self.font)
-            self.words.append([word, f"rgb{str(clr)}"])
+            self.words.append([get_meaning(word), f"rgb{str(clr)}"])
             return True
         else:
             for i, ch in enumerate(word):
@@ -48,8 +65,9 @@ class Crossword(object):
                             self.used[x1][y] = word[x1 - x + i]
                             self.add_rect(x1, y)
                             self.letters[ord(word[x1 - x + i]) - ord('а')].append((x1, y, not f))
-                        clr = (randint(0, 255), randint(0, 255), randint(0, 255))
+                        clr = (randint(100, 255), randint(100, 255), randint(100, 255))
                         self.draw.polygon([((self.W + x - i)*self.C, (y + self.H)*self.C), ((self.W + x - i)*self.C, (y + 1 + self.H)*self.C), ((self.W + x - i + 0.5)*self.C, (y + self.H + 0.5)*self.C)], fill=clr)
+                        self.draw.text(((self.W + x - i + 0.5)*self.C, (y + self.H + 0.5)*self.C),(0,0,0), font=self.font)
                     else:
                         tmp = 0
                         for y1 in range(y - i, y + len(word) - i):
@@ -65,7 +83,7 @@ class Crossword(object):
                             self.letters[ord(word[y1 - y + i]) - ord('а')].append((x, y1, not f))
                         clr = (randint(100, 255), randint(100, 255), randint(100, 255))
                         self.draw.polygon([((self.W + x)*self.C, (y - i + self.H)*self.C), ((self.W + x + 1)*self.C, (y - i + self.H)*self.C), ((self.W + x + 0.5)*self.C, (y - i + self.H + 0.5)*self.C)], fill=clr)
-                    self.words.append([word, f"rgb{str(clr)}"])
+                    self.words.append([get_meaning(word), f"rgb{str(clr)}"])
                     return True
         return False
 
